@@ -7,12 +7,14 @@
 #define INFINITE -1
 
 // general settings
-#define FRAME_RATE 60.0f
-#define DELTA_TIME 1.0f / FRAME_RATE
+#define FRAME_RATE 10.0f
+#define DELTA_TIME 1.0f / 10.0f
+//#define FRAME_RATE 60.0f
+//#define DELTA_TIME 1.0f / 30.0f
 
-#define BOX2D_SUBSTEPS 2
+#define BOX2D_SUBSTEPS 1
 
-#define FRAMESKIP 4
+#define FRAMESKIP 1
 
 #define _MAX_MAP_COLUMNS 24
 #define _MAX_MAP_ROWS 24
@@ -20,7 +22,8 @@
 
 #define MIN_SPAWN_DISTANCE 6.0f
 
-#define ROUND_STEPS 91 * FRAME_RATE
+#define ROUND_STEPS 200.0f
+//#define ROUND_STEPS 1200.0f
 #define SUDDEN_DEATH_STEPS 5.0f * FRAME_RATE
 
 const uint8_t MAX_DRONES = _MAX_DRONES;
@@ -30,12 +33,13 @@ const uint8_t MAX_DRONES = _MAX_DRONES;
 const uint16_t LOG_BUFFER_SIZE = 1024;
 
 // reward settings
-#define WIN_REWARD 3.0f
-#define APPROACH_REWARD_COEF 0.001f
-#define AIM_REWARD 0.02f
-#define AIMED_SHOT_REWARD 0.1f
+#define WIN_REWARD 2.0f
+#define APPROACH_REWARD_COEF 0.000f
+#define AIM_REWARD 0.00f
+#define AIMED_SHOT_REWARD 0.0f
 #define WEAPON_PICKUP_REWARD 1.0f
 #define SHOT_HIT_REWARD_COEF 5.0f
+#define SHOT_HIT_REWARD 0.5f
 
 #define DISTANCE_CUTOFF 15.0f
 #define AIM_TOLERANCE 1.0f

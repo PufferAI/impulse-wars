@@ -425,8 +425,8 @@ void setupEnv(env *e) {
     e->suddenDeathWallCounter = 0;
 
     DEBUG_LOG("creating map");
-    uint8_t firstMap = 0;
     // don't evaluate on the boring empty map
+    uint8_t firstMap = 0;
     if (!e->isTraining) {
         firstMap = 1;
     }
@@ -591,7 +591,8 @@ float computeReward(env *e, droneEntity *drone) {
             reward += WEAPON_PICKUP_REWARD;
         }
         if (drone->stepInfo.shotHit[i] || drone->stepInfo.explosionHit[i]) {
-            reward += computeShotHitReward(e, i);
+            reward += SHOT_HIT_REWARD;
+            //reward += computeShotHitReward(e, i);
         }
 
         const droneEntity *enemyDrone = safe_array_get_at(e->drones, i);
@@ -635,12 +636,12 @@ void computeRewards(env *e, const bool roundOver, const int8_t winner) {
     memset(rewards, 0.0f, e->numDrones * sizeof(float));
 
     if (roundOver && winner != -1) {
-        rewards[winner] += WIN_REWARD;
+        e->rewards[winner] += WIN_REWARD;
     }
 
-    for (uint8_t i = 0; i < e->numDrones; i++) {
+    for (uint8_t i = 0; i < e->numAgents; i++) {
         droneEntity *drone = safe_array_get_at(e->drones, i);
-        rewards[i] += computeReward(e, drone);
+        e->rewards[i] += computeReward(e, drone);
     }
 
     // don't zero sum rewards if there's only one agent
@@ -650,20 +651,6 @@ void computeRewards(env *e, const bool roundOver, const int8_t winner) {
             e->stats[i].reward += rewards[i];
         }
         return;
-    }
-
-    float totalReward = 0.0f;
-    for (uint8_t i = 0; i < e->numDrones; i++) {
-        totalReward += rewards[i];
-    }
-    totalReward /= e->numDrones;
-
-    for (uint8_t i = 0; i < e->numDrones; i++) {
-        rewards[i] -= totalReward;
-        e->stats[i].reward += rewards[i];
-        if (i < e->numAgents) {
-            e->rewards[i] += rewards[i];
-        }
     }
 }
 

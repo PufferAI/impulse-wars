@@ -6,6 +6,8 @@
 
 agentActions scriptedBotActions(const env *e, droneEntity *drone) {
     agentActions actions = {0};
+    return actions; // Sitting duck
+
     const b2Vec2 pos = getCachedPos(drone->bodyID, &drone->pos);
 
     // TODO: handle multiple agent drones

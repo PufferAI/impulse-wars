@@ -16,10 +16,10 @@ from cy_impulse_wars import obsConstants
 
 cnnChannels = 64
 weaponTypeEmbeddingDims = 2
-floatingWallOutputSize = 64
+floatingWallOutputSize = 128
 droneEncOutputSize = 128
-encoderOutputSize = 128
-lstmOutputSize = 128
+encoderOutputSize = 256
+lstmOutputSize = 256
 
 
 class Recurrent(LSTMWrapper):
@@ -92,6 +92,7 @@ class Policy(nn.Module):
             nn.ReLU(),
         )
 
+        '''
         self.droneEncoder = nn.Sequential(
             layer_init(
                 nn.Linear(
@@ -123,7 +124,13 @@ class Policy(nn.Module):
             layer_init(nn.Linear(featuresSize, encoderOutputSize)),
             nn.ReLU(),
         )
+        '''
 
+        self.encoder = nn.Sequential(
+            layer_init(nn.Linear(507, encoderOutputSize)),
+            nn.ReLU(),
+        )
+ 
         if self.is_continuous:
             self.actorMean = layer_init(nn.Linear(lstmOutputSize, env.single_action_space.shape[0]), std=0.01)
             self.actorLogStd = nn.Parameter(th.zeros(1, env.single_action_space.shape[0]))
@@ -150,6 +157,7 @@ class Policy(nn.Module):
         )
 
     def encode_observations(self, obs: th.Tensor) -> th.Tensor:
+        breakpoint()
         batchSize = obs.shape[0]
 
         mapObs = self.unpack(batchSize, obs)
@@ -171,6 +179,7 @@ class Policy(nn.Module):
         # combine all map observations and feed through CNN
         mapObs = th.cat((wallTypes, floatingWallObs, mapPickupObs, droneIndexes), dim=1)
         map = self.mapCNN(mapObs)
+        #map = self.mapCNN(wallTypes)
 
         # process scalar observations
         scalarObs = nativize_tensor(obs[:, self.obsInfo.scalarObsOffset :], self.dtype)
@@ -264,13 +273,17 @@ class Policy(nn.Module):
         droneObs = th.cat((droneWeapon, droneInfoObs), dim=-1)
 
         allDronesObs = th.cat((enemyDroneObs, droneObs), dim=1)
-        drones = self.droneEncoder(allDronesObs)
-
-        # process misc observations
         miscObs = scalarObs[:, self.obsInfo.miscObsOffset :]
 
+        features = th.cat((map, nearWalls, floatingWalls, pickups, projectiles, allDronesObs, miscObs), dim=-1)
+        #allObs = th.cat((0*map, nearWalls, droneObs, enemyDroneObs), dim=1)
+
+        #drones = self.droneEncoder(allDronesObs)
+
+        # process misc observations
+
         # combine all observations and feed through final linear encoder
-        features = th.cat((map, nearWalls, floatingWalls, pickups, projectiles, drones, miscObs), dim=-1)
+        #features = th.cat((map, nearWalls, floatingWalls, pickups, projectiles, drones, miscObs), dim=-1)
 
         return self.encoder(features), None
 
